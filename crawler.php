@@ -9,6 +9,7 @@ function extractHtmlContent($url)
     return $html;
 }
 
+
 // Function to extract urls from html
 function extractUrls($html)
 {
@@ -23,6 +24,7 @@ function extractUrls($html)
     return $links;
 }
 
+
 // Function to deal with relative Urls
 function makeUrlFromRelativeUrl($startUrl, $rootUrl)
 {
@@ -32,6 +34,7 @@ function makeUrlFromRelativeUrl($startUrl, $rootUrl)
     }
     return $startUrl;
 }
+
 
 // Function to filter URLs based on the root URL, handling cases where the host is not set
 function isSameDomain($url, $rootUrl)
@@ -44,6 +47,20 @@ function isSameDomain($url, $rootUrl)
     $rootUrlHost = isset($parsedRootUrl['host']) ? $parsedRootUrl['host'] : '';
 
     return $urlHost === $rootUrlHost;
+}
+
+
+// Function to save the content of a web page to a file with formatted filename
+function savePageContent($url, $content)
+{
+    // Format the base URL for the filename
+    // $filename = basename($url);
+    $formattedBaseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $url);
+    $filename = $formattedBaseUrl . '.html';
+
+    // Save the content and the URL to the file
+    file_put_contents("scraped-files/" . $filename, "URL: $url\n\n$content");
+    echo "Saved: $filename<br><br>";
 }
 
 
@@ -61,8 +78,15 @@ function startCrawling($startUrl, $rootUrl, $depth)
 
     $visited[] = $startUrl;
     echo "Crawling: $startUrl<br>";
+
+    // Scraping html from the Url
     $html = extractHtmlContent($startUrl);
+
+    // Extracting Urls from the scraped html
     $links = extractUrls($html);
+
+    // Save the content of the current page
+    savePageContent($startUrl, $html);
 
     foreach ($links as $link) {
         startCrawling($link, $startUrl, $depth - 1);
