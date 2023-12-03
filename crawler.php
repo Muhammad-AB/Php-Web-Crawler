@@ -23,13 +23,26 @@ function extractUrls($html)
     return $links;
 }
 
+// Function to filter URLs based on the root URL, handling cases where the host is not set
+function isSameDomain($url, $rootUrl)
+{
+    $parsedUrl = parse_url($url);
+    $parsedRootUrl = parse_url($rootUrl);
+
+    // Check if the host is set in the parsed URL
+    $urlHost = isset($parsedUrl['host']) ? $parsedUrl['host'] : "";
+    $rootUrlHost = isset($parsedRootUrl['host']) ? $parsedRootUrl['host'] : '';
+
+    return $urlHost === $rootUrlHost;
+}
+
 
 // Function to start crawling from a given URL with filtering and content saving
 function startCrawling($startUrl, $rootUrl, $depth)
 {
     static $visited = array(); // To keep track of visited URLs
 
-    if ($depth === 0 || in_array($startUrl, $visited))
+    if ($depth === 0 || in_array($startUrl, $visited)|| !isSameDomain($startUrl, $rootUrl))
     {
         return;
     }
