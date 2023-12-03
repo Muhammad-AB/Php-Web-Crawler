@@ -23,6 +23,16 @@ function extractUrls($html)
     return $links;
 }
 
+// Function to deal with relative Urls
+function makeUrlFromRelativeUrl($startUrl, $rootUrl)
+{
+    // If the URL is relative, append it to the base URL
+    if (strpos($startUrl, '/') === 0) {
+        $startUrl = $rootUrl . $startUrl;
+    }
+    return $startUrl;
+}
+
 // Function to filter URLs based on the root URL, handling cases where the host is not set
 function isSameDomain($url, $rootUrl)
 {
@@ -42,8 +52,10 @@ function startCrawling($startUrl, $rootUrl, $depth)
 {
     static $visited = array(); // To keep track of visited URLs
 
-    if ($depth === 0 || in_array($startUrl, $visited)|| !isSameDomain($startUrl, $rootUrl))
-    {
+    // If the URL is relative, append it to the base URL
+    $startUrl = makeUrlFromRelativeUrl($startUrl, $rootUrl);
+
+    if ($depth === 0 || in_array($startUrl, $visited) || !isSameDomain($startUrl, $rootUrl)) {
         return;
     }
 
@@ -52,8 +64,7 @@ function startCrawling($startUrl, $rootUrl, $depth)
     $html = extractHtmlContent($startUrl);
     $links = extractUrls($html);
 
-    foreach ($links as $link)
-    {
+    foreach ($links as $link) {
         startCrawling($link, $startUrl, $depth - 1);
     }
 
